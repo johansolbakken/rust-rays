@@ -1,6 +1,6 @@
 use std::ops;
 
-use crate::math::{random_double, random_double_between};
+use crate::{math::{random_double, random_double_between}, vec_util::unit_vector};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -39,6 +39,10 @@ impl Vec3 {
                 return p;
             }
         }
+    }
+
+    pub fn random_unit_vector() -> Self {
+        unit_vector(&Vec3::random_in_unit_sphere())
     }
 
     pub fn x(&self) -> f64 {
