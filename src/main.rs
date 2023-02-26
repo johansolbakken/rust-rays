@@ -2,23 +2,26 @@ use std::{f64::INFINITY, fs::File, io::Write};
 
 use hittable::{HitRecord, Hittable};
 use ray::Ray;
-use vec_util::{unit_vector};
+use vec_util::unit_vector;
 
 use crate::{
+    camera::Camera,
     color_util::write_color,
     hittable_list::HittableList,
+    math::random_double,
     sphere::Sphere,
-    vec::{Color3, Point3, Vec3},
+    vec::{Color3, Point3},
 };
 
+mod camera;
 mod color_util;
 mod hittable;
 mod hittable_list;
+mod math;
 mod ray;
 mod sphere;
 mod vec;
 mod vec_util;
-mod math;
 
 fn ray_color(ray: &Ray, world: &Box<dyn Hittable>) -> Color3 {
     let mut rec = HitRecord::new();
@@ -36,6 +39,7 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
+    let samples_per_pixel: u32 = 100;
 
     // World
     let mut world = HittableList::new();
@@ -45,15 +49,7 @@ fn main() {
     let world_ref: Box<dyn Hittable> = Box::from(world);
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Point3::from(0.0, 0.0, 0.0);
-    let horizontal = Vec3::from(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::from(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::from(0.0, 0.0, focal_length);
+    let camera = Camera::new(aspect_ratio);
 
     // Render
     let mut file = File::create("output.ppm").unwrap();
@@ -63,17 +59,19 @@ fn main() {
     for j in 0..image_height {
         print!("\rScanlines remaining: {:04}", image_height - 1 - j);
         std::io::stdout().flush().unwrap();
+
         for i in 0..image_width {
-            let u = i as f64 / (image_width - 1) as f64;
-            let v = (image_height - 1 - j) as f64 / (image_height - 1) as f64;
+            let mut pixel_color = Color3::new();
 
-            let ray = Ray::from(
-                origin.clone(),
-                lower_left_corner + horizontal * u + vertical * v - origin,
-            );
-            let pixel_color = ray_color(&ray, &world_ref);
+            for s in 0..samples_per_pixel {
+                let u = (i as f64 + random_double()) / (image_width - 1) as f64;
+                let v = (image_height as f64 - 1.0 - j as f64 + random_double())
+                    / (image_height - 1) as f64;
+                let ray = camera.get_ray(u, v);
+                pixel_color += ray_color(&ray, &world_ref);
+            }
 
-            write_color(&mut file, &pixel_color);
+            write_color(&mut file, &pixel_color, samples_per_pixel);
         }
     }
 
