@@ -2,7 +2,7 @@ use std::ops;
 
 #[derive(Debug, Clone)]
 pub struct Vec3 {
-    e: [f64; 3],
+    pub e: [f64; 3],
 }
 
 impl Vec3 {
@@ -59,6 +59,14 @@ impl ops::Mul<Vec3> for Vec3 {
     }
 }
 
+impl ops::Mul<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Vec3::from(self.x() * rhs, self.y() * rhs, self.z() * rhs)
+    }
+}
+
 impl ops::MulAssign<Vec3> for Vec3 {
     fn mul_assign(&mut self, rhs: Vec3) {
         self.e[0] *= rhs.e[0];
@@ -81,6 +89,15 @@ impl ops::Index<usize> for Vec3 {
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index <= 3);
         &self.e[index]
+    }
+}
+
+impl ops::Div<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        assert!(rhs != 0.0);
+        Vec3::from(self.x() / rhs, self.y() / rhs, self.z() / rhs)
     }
 }
 

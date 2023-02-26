@@ -3,6 +3,7 @@ use std::{fs::File, io::Write};
 use crate::vec::Vec3;
 
 mod vec;
+mod vec_util;
 
 fn main() {
     let image_width = 256;
