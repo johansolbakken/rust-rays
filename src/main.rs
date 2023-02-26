@@ -23,6 +23,7 @@ mod ray;
 mod sphere;
 mod vec;
 mod vec_util;
+mod material;
 
 fn ray_color(ray: &Ray, world: &Box<dyn Hittable>, depth: u32) -> Color3 {
     if depth <= 0 {

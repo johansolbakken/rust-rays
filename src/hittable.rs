@@ -1,15 +1,15 @@
 use crate::{
     ray::Ray,
     vec::{Point3, Vec3},
-    vec_util::dot,
+    vec_util::dot, material::Material,
 };
 
-#[derive(Debug, Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub mat_ptr: Box<dyn Material>
 }
 
 impl HitRecord {
