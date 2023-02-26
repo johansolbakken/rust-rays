@@ -30,7 +30,7 @@ fn ray_color(ray: &Ray, world: &Box<dyn Hittable>, depth: u32) -> Color3 {
     }
 
     let mut rec = HitRecord::new();
-    if world.hit(ray, 0.0, INFINITY, &mut rec) {
+    if world.hit(ray, 0.001, INFINITY, &mut rec) {
         let target = rec.p + rec.normal + Vec3::random_in_unit_sphere();
         return ray_color(&Ray::from(rec.p, target - rec.p), world, depth - 1) * 0.5;
     }
