@@ -18,6 +18,7 @@ mod ray;
 mod sphere;
 mod vec;
 mod vec_util;
+mod math;
 
 fn ray_color(ray: &Ray, world: &Box<dyn Hittable>) -> Color3 {
     let mut rec = HitRecord::new();
