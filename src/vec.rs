@@ -110,5 +110,19 @@ impl ops::DivAssign<f64> for Vec3 {
     }
 }
 
-type Point3 = Vec3;
-type Color3 = Vec3;
+pub type Point3 = Vec3;
+pub type Color3 = Vec3;
+
+impl Color3 {
+    pub fn r(&self) -> f64 {
+        self.e[0]
+    }
+
+    pub fn g(&self) -> f64 {
+        self.e[1]
+    }
+
+    pub fn b(&self) -> f64 {
+        self.e[2]
+    }
+}
