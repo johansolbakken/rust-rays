@@ -1,5 +1,9 @@
 use std::{fs::File, io::Write};
 
+use crate::vec::Vec3;
+
+mod vec;
+
 fn main() {
     let image_width = 256;
     let image_height = 256;
