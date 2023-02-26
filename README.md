@@ -4,4 +4,4 @@ Book: https://raytracing.github.io/books/RayTracingInOneWeekend.html#outputanima
 
 ## Images
 
-![](images/diffuse_sphere.ppm)
+![](images/diffuse_sphere.png)
