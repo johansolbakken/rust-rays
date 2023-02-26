@@ -1,5 +1,7 @@
 use std::ops;
 
+use crate::math::{random_double, random_double_between};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3],
@@ -12,6 +14,31 @@ impl Vec3 {
 
     pub fn from(x: f64, y: f64, z: f64) -> Self {
         Self { e: [x, y, z] }
+    }
+
+    pub fn random() -> Self {
+        Self {
+            e: [random_double(), random_double(), random_double()],
+        }
+    }
+
+    pub fn random_between(min: f64, max: f64) -> Self {
+        Self {
+            e: [
+                random_double_between(min, max),
+                random_double_between(min, max),
+                random_double_between(min, max),
+            ],
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Vec3::random_between(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn x(&self) -> f64 {
