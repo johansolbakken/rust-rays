@@ -1,39 +1,28 @@
-use std::{fs::File, io::Write};
+use std::{f64::INFINITY, fs::File, io::Write};
 
+use hittable::{HitRecord, Hittable};
 use ray::Ray;
-use vec_util::{dot, unit_vector};
+use vec_util::{unit_vector};
 
 use crate::{
     color_util::write_color,
+    hittable_list::HittableList,
+    sphere::Sphere,
     vec::{Color3, Point3, Vec3},
 };
 
 mod color_util;
+mod hittable;
+mod hittable_list;
 mod ray;
+mod sphere;
 mod vec;
 mod vec_util;
 
-fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> f64 {
-    let origin_center = ray.get_origin().clone() - *center;
-    let a = ray.get_direction().length_squared();
-    let half_b = dot(&origin_center, ray.get_direction());
-    let c = origin_center.length_squared() - radius * radius;
-    let discriminant = half_b * half_b - a * c;
-
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discriminant.sqrt()) / a
-    }
-}
-
-fn ray_color(ray: &Ray) -> Color3 {
-    let t = hit_sphere(&Point3::from(0.0, 0.0, -1.0), 0.5, ray);
-    
-    if (t > 0.0) {
-        let vec = ray.at(t) - Vec3::from(0.0, 0.0, -1.0);
-        let N = unit_vector(&vec);
-        return Color3::from(N.x() + 1.0, N.y() + 1.0, N.z() + 1.0) * 0.5;
+fn ray_color(ray: &Ray, world: &Box<dyn Hittable>) -> Color3 {
+    let mut rec = HitRecord::new();
+    if world.hit(ray, 0.0, INFINITY, &mut rec) {
+        return (rec.normal + Color3::from(1.0, 1.0, 1.0)) * 0.5;
     }
 
     let unit_direction = unit_vector(ray.get_direction());
@@ -46,6 +35,13 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
+
+    // World
+    let mut world = HittableList::new();
+    world.add(Sphere::box_from(Point3::from(0.0, 0.0, -1.0), 0.5));
+    world.add(Sphere::box_from(Point3::from(0.0, -100.5, -1.0), 100.0));
+
+    let world_ref: Box<dyn Hittable> = Box::from(world);
 
     // Camera
     let viewport_height = 2.0;
@@ -74,7 +70,7 @@ fn main() {
                 origin.clone(),
                 lower_left_corner + horizontal * u + vertical * v - origin,
             );
-            let pixel_color = ray_color(&ray);
+            let pixel_color = ray_color(&ray, &world_ref);
 
             write_color(&mut file, &pixel_color);
         }
