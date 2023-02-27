@@ -1,6 +1,11 @@
 use std::rc::Rc;
 
-use crate::{hittable::Hittable, material::Material, vec::Point3, vec_util::dot};
+use crate::{
+    hittable::Hittable,
+    material::{Material, NullMaterial},
+    vec::Point3,
+    vec_util::dot,
+};
 
 #[derive(Clone)]
 pub struct Sphere {
@@ -10,6 +15,14 @@ pub struct Sphere {
 }
 
 impl Sphere {
+    pub fn new() -> Self {
+        Self {
+            center: Point3::new(),
+            radius: 0.0,
+            material: Rc::new(NullMaterial {}),
+        }
+    }
+
     pub fn from(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
         Self {
             center,
@@ -59,8 +72,39 @@ impl Hittable for Sphere {
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
-        rec.material = self.material;
+        rec.material = self.material.clone();
 
         return true;
+    }
+}
+
+pub struct SphereBuilder {
+    sphere: Sphere,
+}
+
+impl SphereBuilder {
+    pub fn new() -> Self {
+        Self {
+            sphere: Sphere::new(),
+        }
+    }
+
+    pub fn set_position(&mut self, center: Point3) -> &mut Self {
+        self.sphere.center = center;
+        self
+    }
+
+    pub fn set_radius(&mut self, radius: f64) -> &mut Self {
+        self.sphere.radius = radius;
+        self
+    }
+
+    pub fn set_material(&mut self, material: Rc<dyn Material>) -> &mut Self {
+        self.sphere.material = material;
+        self
+    }
+
+    pub fn to_rc(&self) -> Rc<Sphere> {
+        Rc::new(self.sphere.clone())
     }
 }

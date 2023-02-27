@@ -9,8 +9,9 @@ use crate::{
     camera::Camera,
     color_util::write_color,
     hittable_list::HittableList,
+    material::{Lambertian, Metal},
     math::random_double,
-    sphere::Sphere,
+    sphere::{Sphere, SphereBuilder},
     vec::{Color3, Point3},
 };
 
@@ -32,8 +33,15 @@ fn ray_color(ray: &Ray, world: &Rc<dyn Hittable>, depth: u32) -> Color3 {
 
     let mut rec = HitRecord::new();
     if world.hit(ray, 0.001, INFINITY, &mut rec) {
-        let target = rec.p + rec.normal + Vec3::random_unit_vector();
-        return ray_color(&Ray::from(rec.p, target - rec.p), world, depth - 1) * 0.5;
+        let mut scattered = Ray::new();
+        let mut attenuation = Color3::new();
+        if rec
+            .material
+            .scatter(ray, &rec, &mut attenuation, &mut scattered)
+        {
+            return attenuation * ray_color(&scattered, world, depth - 1);
+        }
+        return Color3::new();
     }
 
     let unit_direction = unit_vector(ray.get_direction());
@@ -50,9 +58,48 @@ fn main() {
     let max_depth: u32 = 50;
 
     // World
+    let material_ground = Rc::new(Lambertian {
+        albedo: Color3::from(0.8, 0.8, 0.0),
+    });
+    let material_center = Rc::new(Lambertian {
+        albedo: Color3::from(0.7, 0.3, 0.3),
+    });
+    let material_left = Rc::new(Metal {
+        albedo: Color3::from(0.8, 0.8, 0.8),
+    });
+    let material_right = Rc::new(Metal {
+        albedo: Color3::from(0.8, 0.6, 0.2),
+    });
+
     let mut world = HittableList::new();
-    world.add(Sphere::rc_from(Point3::from(0.0, 0.0, -1.0), 0.5));
-    world.add(Sphere::rc_from(Point3::from(0.0, -100.5, -1.0), 100.0));
+    world.add(
+        SphereBuilder::new()
+            .set_position(Point3::from(0.0, -100.5, -0.1))
+            .set_radius(100.0)
+            .set_material(material_ground)
+            .to_rc(),
+    );
+    world.add(
+        SphereBuilder::new()
+            .set_position(Point3::from(0.0, 0.0, -1.0))
+            .set_radius(0.5)
+            .set_material(material_center)
+            .to_rc(),
+    );
+    world.add(
+        SphereBuilder::new()
+            .set_position(Point3::from(-1.0, 0.0, -1.0))
+            .set_radius(0.5)
+            .set_material(material_left)
+            .to_rc(),
+    );
+    world.add(
+        SphereBuilder::new()
+            .set_position(Point3::from(1.0, 0.0, -1.0))
+            .set_radius(0.5)
+            .set_material(material_right)
+            .to_rc(),
+    );
 
     let world_ref: Rc<dyn Hittable> = Rc::from(world);
 
