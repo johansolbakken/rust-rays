@@ -1,4 +1,4 @@
-use std::{f64::INFINITY, fs::File, io::Write};
+use std::{f64::INFINITY, fs::File, io::Write, rc::Rc};
 
 use hittable::{HitRecord, Hittable};
 use ray::Ray;
@@ -18,14 +18,14 @@ mod camera;
 mod color_util;
 mod hittable;
 mod hittable_list;
+mod material;
 mod math;
 mod ray;
 mod sphere;
 mod vec;
 mod vec_util;
-mod material;
 
-fn ray_color(ray: &Ray, world: &Box<dyn Hittable>, depth: u32) -> Color3 {
+fn ray_color(ray: &Ray, world: &Rc<dyn Hittable>, depth: u32) -> Color3 {
     if depth <= 0 {
         return Color3::new();
     }
@@ -51,10 +51,10 @@ fn main() {
 
     // World
     let mut world = HittableList::new();
-    world.add(Sphere::box_from(Point3::from(0.0, 0.0, -1.0), 0.5));
-    world.add(Sphere::box_from(Point3::from(0.0, -100.5, -1.0), 100.0));
+    world.add(Sphere::rc_from(Point3::from(0.0, 0.0, -1.0), 0.5));
+    world.add(Sphere::rc_from(Point3::from(0.0, -100.5, -1.0), 100.0));
 
-    let world_ref: Box<dyn Hittable> = Box::from(world);
+    let world_ref: Rc<dyn Hittable> = Rc::from(world);
 
     // Camera
     let camera = Camera::new(aspect_ratio);

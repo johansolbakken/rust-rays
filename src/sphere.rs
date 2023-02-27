@@ -1,25 +1,29 @@
-use crate::{hittable::Hittable, vec::Point3, vec_util::dot};
+use std::rc::Rc;
 
-#[derive(Debug, Clone)]
+use crate::{hittable::Hittable, material::Material, vec::Point3, vec_util::dot};
+
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new() -> Self {
+    pub fn from(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
         Self {
-            center: Point3::new(),
-            radius: 0.5,
+            center,
+            radius,
+            material,
         }
     }
 
-    pub fn from(center: Point3, radius: f64) -> Self {
-        Self { center, radius }
-    }
-
-    pub fn box_from(center: Point3, radius: f64) -> Box<Self> {
-        Box::<Self>::from(Self { center, radius })
+    pub fn rc_from(center: Point3, radius: f64, material: Rc<dyn Material>) -> Rc<Self> {
+        Rc::new(Self {
+            center,
+            radius,
+            material,
+        })
     }
 }
 
@@ -55,6 +59,7 @@ impl Hittable for Sphere {
         rec.p = ray.at(rec.t);
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
+        rec.material = self.material;
 
         return true;
     }

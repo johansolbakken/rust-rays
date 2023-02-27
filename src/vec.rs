@@ -1,6 +1,9 @@
 use std::ops;
 
-use crate::{math::{random_double, random_double_between}, vec_util::unit_vector};
+use crate::{
+    math::{random_double, random_double_between},
+    vec_util::unit_vector,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -63,6 +66,11 @@ impl Vec3 {
 
     pub fn length_squared(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        (self.x().abs() < s) && (self.y().abs() < s) && (self.z().abs() < s)
     }
 }
 

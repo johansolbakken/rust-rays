@@ -1,7 +1,9 @@
+use std::rc::Rc;
+
 use crate::hittable::{HitRecord, Hittable};
 
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>,
+    pub objects: Vec<Rc<dyn Hittable>>,
 }
 
 impl HittableList {
@@ -11,7 +13,7 @@ impl HittableList {
         }
     }
 
-    pub fn from(object: Box<dyn Hittable>) -> Self {
+    pub fn from(object: Rc<dyn Hittable>) -> Self {
         Self {
             objects: vec![object],
         }
@@ -21,7 +23,7 @@ impl HittableList {
         self.objects.clear();
     }
 
-    pub fn add(&mut self, object: Box<dyn Hittable>) {
+    pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.objects.push(object);
     }
 }
