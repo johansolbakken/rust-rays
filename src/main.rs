@@ -66,9 +66,11 @@ fn main() {
     });
     let material_left = Rc::new(Metal {
         albedo: Color3::from(0.8, 0.8, 0.8),
+        fuzz: 0.2,
     });
     let material_right = Rc::new(Metal {
         albedo: Color3::from(0.8, 0.6, 0.2),
+        fuzz: 0.8,
     });
 
     let mut world = HittableList::new();

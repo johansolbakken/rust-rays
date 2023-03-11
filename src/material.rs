@@ -56,6 +56,7 @@ impl Material for Lambertian {
 
 pub struct Metal {
     pub albedo: Color3,
+    pub fuzz: f64,
 }
 
 impl Material for Metal {
